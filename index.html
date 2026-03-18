@@ -1705,28 +1705,44 @@
     function renderCheckoutSummary() {
       const container = document.getElementById('checkout-summary-items');
       container.innerHTML = '';
-      const subtotal = cart.reduce((s,i) => s+i.price*i.qty, 0);
+      const subtotal = cart.reduce((s,i) => s + (parseFloat(i.price) * i.qty), 0);
       const shipping = subtotal >= 60 ? 0 : 8.99;
       const total = subtotal + shipping;
       cart.forEach(item => {
-        const imgHtml = item.imgKey && IMG_SRCS[item.imgKey]
-          ? `<img src="${IMG_SRCS[item.imgKey]}" style="width:100%;height:100%;object-fit:cover">`
-          : item.icon;
         const el = document.createElement('div');
         el.className = 'summary-item';
-        el.innerHTML = `
-          <div class="summary-item-img">${imgHtml}</div>
-          <div class="summary-item-info">
-            <div class="summary-item-name">${item.name} ×${item.qty}</div>
-            <div class="summary-item-sub">${item.type}</div>
-          </div>
-          <div class="summary-item-price">$${(item.price*item.qty).toFixed(2)}</div>`;
+
+        // image cell
+        const imgCell = document.createElement('div');
+        imgCell.className = 'summary-item-img';
+        if (item.imgKey && IMG_SRCS[item.imgKey]) {
+          const img = document.createElement('img');
+          img.src = IMG_SRCS[item.imgKey];
+          img.style.cssText = 'width:100%;height:100%;object-fit:cover';
+          imgCell.appendChild(img);
+        } else {
+          imgCell.textContent = item.icon;
+        }
+
+        // info cell
+        const infoCell = document.createElement('div');
+        infoCell.className = 'summary-item-info';
+        infoCell.innerHTML = `<div class="summary-item-name">${item.name} &times;${item.qty}</div><div class="summary-item-sub">${item.type}</div>`;
+
+        // price cell
+        const priceCell = document.createElement('div');
+        priceCell.className = 'summary-item-price';
+        priceCell.textContent = '$' + (parseFloat(item.price) * item.qty).toFixed(2);
+
+        el.appendChild(imgCell);
+        el.appendChild(infoCell);
+        el.appendChild(priceCell);
         container.appendChild(el);
       });
-      document.getElementById('summary-subtotal').textContent = '$'+subtotal.toFixed(2);
-      document.getElementById('summary-shipping').textContent = shipping === 0 ? 'FREE' : '$'+shipping.toFixed(2);
-      document.getElementById('summary-total').textContent = '$'+total.toFixed(2);
-      document.getElementById('summary-free-note').textContent = subtotal >= 60 ? '🎉 You qualify for free shipping!' : `Add $${(60-subtotal).toFixed(2)} more for free shipping`;
+      document.getElementById('summary-subtotal').textContent = '$' + subtotal.toFixed(2);
+      document.getElementById('summary-shipping').textContent = shipping === 0 ? 'FREE' : '$' + shipping.toFixed(2);
+      document.getElementById('summary-total').textContent = '$' + total.toFixed(2);
+      document.getElementById('summary-free-note').textContent = subtotal >= 60 ? '🎉 You qualify for free shipping!' : `Add $${(60 - subtotal).toFixed(2)} more for free shipping`;
     }
 
     function placeOrder() {
